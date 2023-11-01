@@ -4,6 +4,7 @@
 const int numberOfSensors = 1;
 
 int currentFile = 0;
+bool playing = false;
 
 void setup() {
 Serial.begin(9600);
@@ -14,6 +15,13 @@ delay(500);
 
 void loop() {
 
+    if (playing == true) {
+        if (!playSdWav1.isPlaying()){
+            playSound(currentFile);
+            currentFile = (currentFile + 1) % numberOfFiles;
+        }
+    }
+
     currtouched1 = mprBoard_A.touched();
 
     for (uint8_t i=0; i < numberOfSensors; i++) {
@@ -21,6 +29,7 @@ void loop() {
         Serial.print(i); Serial.println(" touched of A");
         playSound(currentFile);
         currentFile = (currentFile + 1) % numberOfFiles;
+        playing = true;
         }
     }
 

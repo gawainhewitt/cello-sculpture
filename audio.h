@@ -43,6 +43,7 @@ void init_player() {
 }
 
 void playSound(int file) {
-    Serial.println("play");
+    Serial.print("play ");
+    Serial.println(fileNames[file]);
     playSdWav1.play(fileNames[file]);
 }
