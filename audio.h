@@ -16,6 +16,9 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=911,320
 #define SDCARD_MOSI_PIN  7
 #define SDCARD_SCK_PIN   14
 
+char *fileNames[] = {"BB1.WAV", "C1.WAV", "C2.WAV", "C3.WAV", "C4.WAV", "C5.WAV", "D1.WAV", "D2.WAV", "D3.WAV", "E1.WAV", "E2.WAV", "E_PENT1.WAV", "E_PENT2.WAV"};
+int numberOfFiles = 13;
+
 void init_player() {
 
   // Audio connections require memory to work.  For more
@@ -39,7 +42,7 @@ void init_player() {
   }
 }
 
-void playSound() {
+void playSound(int file) {
     Serial.println("play");
-    playSdWav1.play("C1.WAV");
+    playSdWav1.play(fileNames[file]);
 }

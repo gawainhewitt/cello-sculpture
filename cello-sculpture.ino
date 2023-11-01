@@ -3,6 +3,8 @@
 
 const int numberOfSensors = 1;
 
+int currentFile = 0;
+
 void setup() {
 Serial.begin(9600);
 init_mpr121();
@@ -17,7 +19,8 @@ void loop() {
     for (uint8_t i=0; i < numberOfSensors; i++) {
         if ((currtouched1 & _BV(i)) && !(lasttouched1 & _BV(i)) ) {
         Serial.print(i); Serial.println(" touched of A");
-        playSound();
+        playSound(currentFile);
+        currentFile = (currentFile + 1) % numberOfFiles;
         }
     }
 
