@@ -16,7 +16,7 @@ delay(500);
 void loop() {
 
     if (playing == true) {
-        if (!playSdWav1.isPlaying()){
+        if (!playSdRaw1.isPlaying()){
             playSound(currentFile);
             currentFile = (currentFile + 1) % numberOfFiles;
         }

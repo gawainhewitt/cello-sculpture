@@ -4,19 +4,26 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include <SerialFlash.h>
+
 // GUItool: begin automatically generated code
-AudioPlaySdWav           playSdWav1;     //xy=391,367
+AudioPlaySdRaw           playSdRaw1;     //xy=411,454
 AudioOutputI2S           audioOutput;    //xy=687,423
-AudioConnection          patchCord1(playSdWav1, 0, audioOutput, 0);
-AudioConnection          patchCord2(playSdWav1, 1, audioOutput, 1);
+AudioConnection          patchCord1(playSdRaw1, 0, audioOutput, 0);
+AudioConnection          patchCord2(playSdRaw1, 0, audioOutput, 1);
 AudioControlSGTL5000     sgtl5000_1;     //xy=911,320
 // GUItool: end automatically generated code
+
 
 #define SDCARD_CS_PIN    10
 #define SDCARD_MOSI_PIN  7
 #define SDCARD_SCK_PIN   14
 
-char *fileNames[] = {"BB1.WAV", "C1.WAV", "C2.WAV", "C3.WAV", "C4.WAV", "C5.WAV", "D1.WAV", "D2.WAV", "D3.WAV", "E1.WAV", "E2.WAV", "E_PENT1.WAV", "E_PENT2.WAV"};
+String fileNames[] = {"BB1.RAW", "C1.RAW", "C2.RAW", "C3.RAW", "C4.RAW", "C5.RAW", "D1.RAW", "D2.RAW", "D3.RAW", "E1.RAW", "E2.RAW", "E_PENT1.RAW", "E_PENT2.RAW"};
 int numberOfFiles = 13;
 
 void init_player() {
@@ -44,6 +51,6 @@ void init_player() {
 
 void playSound(int file) {
     Serial.print("play ");
-    Serial.println(fileNames[file]);
-    playSdWav1.play(fileNames[file]);
+    Serial.println(fileNames[file].c_str());
+    playSdRaw1.play(fileNames[file].c_str());
 }
