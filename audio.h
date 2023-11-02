@@ -49,8 +49,13 @@ void init_player() {
   }
 }
 
-void playSound(int file) {
+void playSong(int file) {
     Serial.print("play ");
     Serial.println(fileNames[file].c_str());
     playSdRaw1.play(fileNames[file].c_str());
+}
+
+void stopSong() {
+    Serial.println("stop song");
+    playSdRaw1.stop();
 }
