@@ -23,8 +23,11 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=911,320
 #define SDCARD_MOSI_PIN  7
 #define SDCARD_SCK_PIN   14
 
-String fileNames[] = {"BB1.RAW", "C1.RAW", "C2.RAW", "C3.RAW", "C4.RAW", "C5.RAW", "D1.RAW", "D2.RAW", "D3.RAW", "E1.RAW", "E2.RAW", "E_PENT1.RAW", "E_PENT2.RAW"};
+String songNames[] = {"BB1.RAW", "C1.RAW", "C2.RAW", "C3.RAW", "C4.RAW", "C5.RAW", "D1.RAW", "D2.RAW", "D3.RAW", "E1.RAW", "E2.RAW", "E_PENT1.RAW", "E_PENT2.RAW"};
 int numberOfFiles = 13;
+
+String celloSamples[] = {"CC2.RAW", "CC#2.RAW", "CD2.RAW", "CD#2.RAW", "CE2.RAW", "CF2.RAW", "CF#2.RAW", "CG2.RAW", "CG#2.RAW", "CA2.RAW", "CA#2.RAW", "CB2.RAW", "CC3.RAW", "CC#3.RAW", "CD3.RAW", "CD#3.RAW", "CE3.RAW", "CF3.RAW", "CF#3.RAW", "CG3.RAW", "CG#3.RAW", "CA3.RAW", "CA#3.RAW", "CB3.RAW"};
+int numberOfSamples = 24;
 
 void init_player() {
 
@@ -51,11 +54,17 @@ void init_player() {
 
 void playSong(int file) {
     Serial.print("play ");
-    Serial.println(fileNames[file].c_str());
-    playSdRaw1.play(fileNames[file].c_str());
+    Serial.println(songNames[file].c_str());
+    playSdRaw1.play(songNames[file].c_str());
 }
 
 void stopSong() {
     Serial.println("stop song");
     playSdRaw1.stop();
+}
+
+void playSample(int file) {
+    Serial.print("play note");
+    Serial.println(celloSamples[file].c_str());
+    playSdRaw1.play(celloSamples[file].c_str());
 }

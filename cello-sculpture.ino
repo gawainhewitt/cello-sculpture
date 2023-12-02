@@ -1,8 +1,10 @@
 #include "mpr121.h"
 #include "audio.h"
 #include "constants.h"
+#include "reboot.h"
 
-const int numberOfSensors = 2;
+
+const int numberOfSensors = 7;
 
 int currentFile = 0;
 bool playing = false;
@@ -12,6 +14,7 @@ void setup() {
 Serial.begin(9600);
 init_mpr121();
 init_player();
+pinMode(rebootButton, INPUT_PULLUP);
 delay(500);
 }
 
@@ -23,6 +26,8 @@ void loop() {
             currentFile = (currentFile + 1) % numberOfFiles;
         }
     }
+
+    // Serial.println(mprBoard_A.filteredData(0));
 
     currtouched1 = mprBoard_A.touched();
 
@@ -37,9 +42,16 @@ void loop() {
         } else if (i == STOP_BUTTON){
             stopSong();
             playing = false;
+        } else {
+            playSample(i - 3);
         }
         
         }
+    }
+
+    if(digitalRead(rebootButton) == LOW){
+      Serial.print("reboot");
+      doReboot();
     }
 
     lasttouched1 = currtouched1;
