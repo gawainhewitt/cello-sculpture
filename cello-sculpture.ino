@@ -42,6 +42,8 @@ void loop() {
         } else if (i == STOP_BUTTON){
             stopSong();
             playing = false;
+        } else if (i == CHANGE_BUTTON) {
+            Serial.println("change");
         } else {
             playSample(i - 3);
         }
