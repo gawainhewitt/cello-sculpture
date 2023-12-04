@@ -4,40 +4,18 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
-
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
 
 // GUItool: begin automatically generated code
 AudioPlaySdRaw           playSdRaw1;     //xy=472,335
 AudioPlaySdRaw           playSdRaw2;     //xy=479,406
-AudioPlaySdRaw           playSdRaw3;     //xy=497,474
-AudioPlaySdRaw           playSdRaw5;     //xy=504,623
-AudioPlaySdRaw           playSdRaw4;     //xy=518,544
-AudioMixer4              mixer1;         //xy=664,343
-AudioMixer4              mixer2;         //xy=666,455
 AudioMixer4              mixer3;         //xy=793,406
 AudioOutputI2S           audioOutput;    //xy=958,466
-AudioConnection          patchCord1(playSdRaw1, 0, mixer1, 0);
-AudioConnection          patchCord2(playSdRaw2, 0, mixer2, 0);
-AudioConnection          patchCord3(playSdRaw3, 0, mixer2, 1);
-AudioConnection          patchCord4(playSdRaw5, 0, mixer2, 3);
-AudioConnection          patchCord5(playSdRaw4, 0, mixer2, 2);
-AudioConnection          patchCord6(mixer1, 0, mixer3, 0);
-AudioConnection          patchCord7(mixer2, 0, mixer3, 1);
-AudioConnection          patchCord8(mixer3, 0, audioOutput, 0);
+AudioConnection          patchCord1(playSdRaw1, 0, mixer3, 0);
+AudioConnection          patchCord2(playSdRaw2, 0, mixer3, 1);
+AudioConnection          patchCord3(mixer3, 0, audioOutput, 0);
+AudioConnection          patchCord4(mixer3, 0, audioOutput, 1);
 AudioControlSGTL5000     sgtl5000_1;     //xy=972,201
 // GUItool: end automatically generated code
-
-
 
 #define SDCARD_CS_PIN    10
 #define SDCARD_MOSI_PIN  7
@@ -103,53 +81,26 @@ void init_player() {
   }
 }
 
+void setScale(int file) {
+  for (int i = 0; i < 4; i++) {
+    String note = celloSamples[songs[file].scale[i] + songs[file].noteOffset];
+    currentScale[i] = note;
+  }
+}
+
 void playSong(int file) {
-    Serial.print("play ");
-    // String song = songs[file].name;
-    // Serial.println(song);
-    Serial.println(songs[file].name.c_str());
-    playSdRaw1.play(songs[file].name.c_str());
-    for (int i = 0; i < 4; i++) {
-      String note = celloSamples[songs[file].scale[i] + songs[file].noteOffset];
-      currentScale[i] = note;
-      Serial.print("currentScale = ");
-      Serial.println(currentScale[i]);
-    }
-    
+  Serial.print("play ");
+  Serial.println(songs[file].name.c_str());
+  playSdRaw2.play(songs[file].name.c_str()); 
+  setScale(file);
 }
 
 void stopSong() {
-    Serial.println("stop song");
-    playSdRaw1.stop();
+  Serial.println("stop song");
+  playSdRaw2.stop();
 }
 
 void playSample(int file) {
-    Serial.print("play note");
-    Serial.println(currentScale[file].c_str());
-    playSdRaw2.play(currentScale[file].c_str());
-    
-    // if(currentCelloPlayer == 2) {
-    //   playSdRaw3.play(currentScale[file].c_str());
-    //   currentCelloPlayer = 3;
-    // } else {
-    //   playSdRaw2.play(currentScale[file].c_str());
-    //   currentCelloPlayer = 2;
-    // }
-
-    // switch (file)
-    // {
-    // case 0:
-    //   playSdRaw2.play(currentScale[file].c_str());
-    //   break;
-    // case 1:
-    //   playSdRaw3.play(currentScale[file].c_str());
-    //   break;
-    // case 2:
-    //   playSdRaw4.play(currentScale[file].c_str());
-    //   break;
-    // case 3:
-    //   playSdRaw4.play(currentScale[file].c_str());
-    //   break;
-    // }
-    
+  Serial.println(currentScale[file].c_str());
+  playSdRaw1.play(currentScale[file].c_str());
 }
