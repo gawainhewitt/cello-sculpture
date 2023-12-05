@@ -1,25 +1,10 @@
-#include <Audio.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
-#include <SerialFlash.h>
+#include <AltSoftSerial.h>    // Arduino build environment requires this
+#include <wavTrigger.h>
 
+wavTrigger wTrig;             // Our WAV Trigger object
 
-// GUItool: begin automatically generated code
-AudioPlaySdRaw           playSdRaw1;     //xy=472,335
-AudioPlaySdRaw           playSdRaw2;     //xy=479,406
-AudioMixer4              mixer3;         //xy=793,406
-AudioOutputI2S           audioOutput;    //xy=958,466
-AudioConnection          patchCord1(playSdRaw1, 0, mixer3, 0);
-AudioConnection          patchCord2(playSdRaw2, 0, mixer3, 1);
-AudioConnection          patchCord3(mixer3, 0, audioOutput, 0);
-AudioConnection          patchCord4(mixer3, 0, audioOutput, 1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=972,201
-// GUItool: end automatically generated code
+char gWTrigVersion[VERSION_STRING_LEN];    // WAV Trigger version string
 
-#define SDCARD_CS_PIN    10
-#define SDCARD_MOSI_PIN  7
-#define SDCARD_SCK_PIN   14
 
 int major[4] = {0, 4, 7, 12};
 int major7[4] = {0, 4, 7, 11};
@@ -59,26 +44,26 @@ int numberOfSamples = 24;
 String currentScale[4] = {"CA#2.RAW", "CD3.RAW", "CF3.RAW", "CG#3.RAW"};
 
 void init_player() {
+  // If the Arduino is powering the WAV Trigger, we should wait for the WAV
+  //  Trigger to finish reset before trying to send commands.
+  delay(1000);
 
-  // Audio connections require memory to work.  For more
-  // detailed information, see the MemoryAndCpuUsage example
-  AudioMemory(20);
-
-  // Comment these out if not using the audio adaptor board.
-  // This may wait forever if the SDA & SCL pins lack
-  // pullup resistors
-  sgtl5000_1.enable();
-  sgtl5000_1.volume(0.5);
-
-  SPI.setMOSI(SDCARD_MOSI_PIN);
-  SPI.setSCK(SDCARD_SCK_PIN);
-  if (!(SD.begin(SDCARD_CS_PIN))) {
-    // stop here, but print a message repetitively
-    while (1) {
-      Serial.println("Unable to access the SD card");
-      delay(500);
-    }
-  }
+  // WAV Trigger startup at 57600
+  wTrig.start();
+  delay(10);
+  
+  // Send a stop-all command and reset the sample-rate offset, in case we have
+  //  reset while the WAV Trigger was already playing.
+  wTrig.stopAllTracks();
+  wTrig.samplerateOffset(0);
+  
+  // Enable track reporting from the WAV Trigger
+  wTrig.setReporting(true);
+  
+  // Allow time for the WAV Trigger to respond with the version string and
+  //  number of tracks.
+  delay(100); 
+  
 }
 
 void setScale(int file) {
@@ -91,16 +76,16 @@ void setScale(int file) {
 void playSong(int file) {
   Serial.print("play ");
   Serial.println(songs[file].name.c_str());
-  playSdRaw2.play(songs[file].name.c_str()); 
+  // playSdRaw2.play(songs[file].name.c_str()); 
   setScale(file);
 }
 
 void stopSong() {
   Serial.println("stop song");
-  playSdRaw2.stop();
+  // playSdRaw2.stop();
 }
 
 void playSample(int file) {
-  Serial.println(currentScale[file].c_str());
-  playSdRaw1.play(currentScale[file].c_str());
+  wTrig.trackPlayPoly(file + 14);
+  // playSdRaw1.play(currentScale[file].c_str());
 }

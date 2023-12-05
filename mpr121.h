@@ -1,23 +1,61 @@
-#include <bus1_MPR121.h> // use this modified adafruit library to allow use of other i2c busses - https://github.com/gawainhewitt/bus1_MPR121
-// #include "Adafruit_MPR121.h" // alternatively you can use the standard Adafruit library if using bus 0
+#include <MPR121.h>
+#include <MPR121_Datastream.h>
 #include <Wire.h>
 
-Adafruit_MPR121 mprBoard_A = Adafruit_MPR121();
+// touch constants
+const uint8_t MPR121_ADDR = 0x5C;  // 0x5C is the MPR121 I2C address on the Bare Touch Board
+const uint8_t MPR121_INT = 4;  // pin 4 is the MPR121 interrupt on the Bare Touch Board
 
-uint16_t lasttouched1 = 0;
-uint16_t currtouched1 = 0;
+// MPR121 datastream behaviour constants
+const bool MPR121_DATASTREAM_ENABLE = false;
 
 void init_mpr121()
 {
-    if (!mprBoard_A.begin(0x5A)) {
-    Serial.println("MPR121 A not found, check wiring?");
-    while (1);
+    Serial.println("setup mpr");
+    if (!MPR121.begin(MPR121_ADDR)) {
+        Serial.println("error setting up MPR121");
+        switch (MPR121.getError()) {
+        case NO_ERROR:
+            Serial.println("no error");
+            break;
+        case ADDRESS_UNKNOWN:
+            Serial.println("incorrect address");
+            break;
+        case READBACK_FAIL:
+            Serial.println("readback failure");
+            break;
+        case OVERCURRENT_FLAG:
+            Serial.println("overcurrent on REXT pin");
+            break;
+        case OUT_OF_RANGE:
+            Serial.println("electrode out of range");
+            break;
+        case NOT_INITED:
+            Serial.println("not initialised");
+            break;
+        default:
+            Serial.println("unknown error");
+            break;
+        }
+        while (1);
     }
-    Serial.println("MPR121 A found!");
 
-    mprBoard_A.writeRegister(MPR121_ECR, 0x00); // stop board
-    mprBoard_A.setThreshholds(10, 6);   //set sensitivity - also note spelling mistake
-    mprBoard_A.writeRegister(MPR121_FDLF, 0x78);
-    mprBoard_A.writeRegister(MPR121_ECR, 0x8F); //start board
+  MPR121.setInterruptPin(MPR121_INT);
 
+  if (MPR121_DATASTREAM_ENABLE) {
+    MPR121.restoreSavedThresholds();
+    MPR121_Datastream.begin(&Serial);
+  } else {
+    MPR121.setTouchThreshold(40);  // this is the touch threshold - setting it low makes it more like a proximity trigger, default value is 40 for touch
+    MPR121.setReleaseThreshold(20);  // this is the release threshold - must ALWAYS be smaller than the touch threshold, default value is 20 for touch
+  }
+
+  MPR121.setFFI(FFI_10);
+  MPR121.setSFI(SFI_10);
+  MPR121.setGlobalCDT(CDT_4US);  // reasonable for larger capacitances
+  
+  digitalWrite(LED_BUILTIN, HIGH);  // switch on user LED while auto calibrating electrodes
+  delay(1000);
+  MPR121.autoSetElectrodes();  // autoset all electrode settings
+  digitalWrite(LED_BUILTIN, LOW);
 }

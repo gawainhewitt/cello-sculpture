@@ -1,67 +1,47 @@
 #include "mpr121.h"
 #include "audio.h"
 #include "constants.h"
-#include "reboot.h"
 
 
 const int numberOfSensors = 7;
 
 int currentFile = 0;
-bool playing = false;
+bool songPlaying = false;
+int stringsPlaying[4] = {0, 0, 0, 0};
 bool started = false; // this is a hack to stop the bug where it crashes if strings are played before songs
 
 
 void setup() {
-Serial.begin(9600);
+Serial.begin(115200);
+Serial.println("are we functioning?");
 init_mpr121();
 init_player();
-pinMode(rebootButton, INPUT_PULLUP);
 delay(500);
 }
 
 void loop() {
 
+    // wTrig.update();
 
-    if (playing == true) {
-        if (!playSdRaw2.isPlaying()){
-            playSong(currentFile);
-            currentFile = (currentFile + 1) % numberOfFiles;
-        }
-    }
+    MPR121.updateAll();
 
-    // Serial.println(mprBoard_A.filteredData(0));
-
-
-    currtouched1 = mprBoard_A.touched();
+    // if (songPlaying == true) {
+    //     if (!playSdRaw2.isPlaying()){
+    //         playSong(currentFile);
+    //         currentFile = (currentFile + 1) % numberOfFiles;
+    //     }
+    // }
 
     for (uint8_t i=0; i < numberOfSensors; i++) {
-        if ((currtouched1 & _BV(i)) && !(lasttouched1 & _BV(i)) ) {
-            Serial.print(i); Serial.println(" touched of A");
-            if (i == START_BUTTON){
-                playSong(currentFile);
-                currentFile = (currentFile + 1) % numberOfFiles;
-                playing = true;
-            } else if (i == STOP_BUTTON){
-                stopSong();
-                playing = false;
-            } else if (i == CHANGE_BUTTON) {
-                Serial.println("change");
-            } else {
-                if (!started){
-                    playSong(currentFile); // this is a hack to stop the bug where it crashes if strings are played before songs
-                    started = true;
-                } else {
-                    playSample(i - 3);
-                }
-            }
+        if (MPR121.isNewTouch(i)) {
+            playSample(i);
+            Serial.print("electrode ");
+            Serial.print(i, DEC);
+            Serial.println(" was just touched");
+        } else if (MPR121.isNewRelease(i)) {
+            Serial.print("electrode ");
+            Serial.print(i, DEC);
+            Serial.println(" was just released");
         }
     }
-
-    if(digitalRead(rebootButton) == LOW){
-      Serial.print("reboot");
-      doReboot();
-    }
-
-    lasttouched1 = currtouched1;
-    return;
 }
