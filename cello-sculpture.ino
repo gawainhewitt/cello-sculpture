@@ -1,19 +1,19 @@
 #include "mpr121.h"
 #include "audio.h"
-#include "constants.h"
 
+#define START_BUTTON 4
 
-const int numberOfSensors = 7;
+const int numberOfSensors = 4;
 
-int currentFile = 0;
-bool songPlaying = false;
-int stringsPlaying[4] = {0, 0, 0, 0};
-bool started = false; // this is a hack to stop the bug where it crashes if strings are played before songs
+long lastDebounceTime = 0;  
+long debounceDelay = 100;
 
+bool buttonState = false;
 
 void setup() {
 Serial.begin(115200);
 Serial.println("are we functioning?");
+pinMode(START_BUTTON, INPUT_PULLUP);
 init_mpr121();
 init_player();
 delay(500);
@@ -24,13 +24,6 @@ void loop() {
     // wTrig.update();
 
     MPR121.updateAll();
-
-    // if (songPlaying == true) {
-    //     if (!playSdRaw2.isPlaying()){
-    //         playSong(currentFile);
-    //         currentFile = (currentFile + 1) % numberOfFiles;
-    //     }
-    // }
 
     for (uint8_t i=0; i < numberOfSensors; i++) {
         if (MPR121.isNewTouch(i)) {
@@ -44,4 +37,28 @@ void loop() {
             Serial.println(" was just released");
         }
     }
+    
+    if ( (millis() - lastDebounceTime) > debounceDelay) {
+        if (buttonState == false) {
+            if (digitalRead(START_BUTTON) == LOW) {
+                toggleSong();
+                buttonState = true;
+                Serial.println("button is low!");
+            }
+        }
+        lastDebounceTime = millis();
+    }
+
+    if (buttonState == true) {
+        if (digitalRead(START_BUTTON) == HIGH) {
+            buttonState = false;
+        }
+    }
+
+     // if (songPlaying == true) {
+    //     if (!playSdRaw2.isPlaying()){
+    //         playSong(currentFile);
+    //         currentFile = (currentFile + 1) % numberOfFiles;
+    //     }
+    // }
 }
