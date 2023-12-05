@@ -40,10 +40,10 @@ int currentCelloPlayer = 2;
 SongDetails songs[] = {one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen};
 int numberOfSongs  = 13;
 
-String celloSamples[] = {"CC2.RAW", "CC#2.RAW", "CD2.RAW", "CD#2.RAW", "CE2.RAW", "CF2.RAW", "CF#2.RAW", "CG2.RAW", "CG#2.RAW", "CA2.RAW", "CA#2.RAW", "CB2.RAW", "CC3.RAW", "CC#3.RAW", "CD3.RAW", "CD#3.RAW", "CE3.RAW", "CF3.RAW", "CF#3.RAW", "CG3.RAW", "CG#3.RAW", "CA3.RAW", "CA#3.RAW", "CB3.RAW"};
-int numberOfSamples = 24;
+// String celloSamples[] = {"CC2.RAW", "CC#2.RAW", "CD2.RAW", "CD#2.RAW", "CE2.RAW", "CF2.RAW", "CF#2.RAW", "CG2.RAW", "CG#2.RAW", "CA2.RAW", "CA#2.RAW", "CB2.RAW", "CC3.RAW", "CC#3.RAW", "CD3.RAW", "CD#3.RAW", "CE3.RAW", "CF3.RAW", "CF#3.RAW", "CG3.RAW", "CG#3.RAW", "CA3.RAW", "CA#3.RAW", "CB3.RAW"};
+// int numberOfSamples = 24;
 
-String currentScale[4] = {"CA#2.RAW", "CD3.RAW", "CF3.RAW", "CG#3.RAW"};
+int currentScale[4] = {0, 4, 7, 12};
 
 void init_player() {
   // If the Arduino is powering the WAV Trigger, we should wait for the WAV
@@ -82,7 +82,9 @@ void toggleSong() {
     Serial.print("current song playing is ");
     Serial.println(currentSong);
   } else {
-    wTrig.trackStop(currentSong);
+    for (int i = 0; i < numberOfSongs; i++) {
+      wTrig.trackStop(currentSong);
+    }
     Serial.print("current song stopping is ");
     Serial.println(currentSong);
     currentSong = (currentSong + 1) % (numberOfSongs + 1);
@@ -95,7 +97,12 @@ void toggleSong() {
   setScale();
 }
 
-void playSample(int file) {
-  wTrig.trackPlayPoly(file + 14);
+void playSample(int string) {
+  int scaleNote = songs[currentSong-1].scale[string];
+  int scaleFileOffset = 14;
+  int keyOffset = songs[currentSong-1].noteOffset;
+  wTrig.trackPlayPoly(scaleNote + scaleFileOffset + keyOffset);
+  // Serial.print("keyOffset is ");
+  // Serial.println(keyOffset);
   // playSdRaw1.play(currentScale[file].c_str());
 }

@@ -1,7 +1,7 @@
 #include "mpr121.h"
 #include "audio.h"
 
-#define START_BUTTON 4
+#define START_BUTTON 9
 
 const int numberOfSensors = 4;
 
