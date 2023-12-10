@@ -101,6 +101,7 @@ void playSample(int string) {
   int scaleNote = songs[currentSong-1].scale[string];
   int scaleFileOffset = 14;
   int keyOffset = songs[currentSong-1].noteOffset;
+  wTrig.trackStop(scaleNote + scaleFileOffset + keyOffset);
   wTrig.trackPlayPoly(scaleNote + scaleFileOffset + keyOffset);
   // Serial.print("keyOffset is ");
   // Serial.println(keyOffset);
